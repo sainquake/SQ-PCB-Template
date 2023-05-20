@@ -1,0 +1,146 @@
+Wire List
+
+<<< Component List >>>
+GCM155R71H104KE02D              C1             CAPC1005X55N
+GCM155R71H104KE02D              C2             CAPC1005X55N
+GCM155R71H104KE02D              C13            CAPC1005X55N
+GCM155R71H104KE02D              C14            CAPC1005X55N
+GCM155R71H104KE02D              C15            CAPC1005X55N
+GCM155R71H104KE02D              C16            CAPC1005X55N
+SM06B-SRSS-TB(LF)(SN)           DEBUG?         JST_SM06B-SRSS-TB(LF)(SN)
+STM32G0B1CEU6                   IC1            QFN50P700X700X60-49N-D
+LTST-C19HE1WT                   LED1           LTST-C19HE1WT
+RC0402FR-074K7L                 R11            RESC1005X40N
+RC0402FR-074K7L                 R12            RESC1005X40N
+RC0402FR-07330RL                R14            RESC1005X40N
+RC0402FR-07330RL                R15            RESC1005X40N
+RC0402FR-07330RL                R16            RESC1005X40N
+RC0402FR-074K7L                 R17            RESC1005X40N
+RC0402FR-074K3L                 Rv1            RESC1005X40N
+RC0402FR-072K4L                 Rv2            RESC1005X40N
+BM04B-GHS-TBT(LF)(SN)(N)        SWD1           JST_BM04B-GHS-holes
+SPX3819M5-L-3-3/TR              U1             *SOT95P280X145-5N
+CSTCE8M00G55-R0                 Y1             *OSC_CSTCE8M00G55-R0
+
+<<< Wire List >>>
+
+  NODE  REFERENCE  PIN #   PIN NAME       PIN TYPE    PART VALUE
+
+[00054] VERSION
+        IC1        18      PA7            PASSIVE     STM32G0B1CEU6
+        Rv1        1       1              PASSIVE     RC0402FR-074K3L
+        Rv2        2       2              PASSIVE     RC0402FR-072K4L
+
+[00053] SWLK
+        IC1        36      PA14-BOOT0     PASSIVE     STM32G0B1CEU6
+        SWD1       2       2              PASSIVE     BM04B-GHS-TBT(LF)(SN)(N)
+
+[00052] SWDIO
+        DEBUG?     4       4              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        IC1        35      PA13           PASSIVE     STM32G0B1CEU6
+        SWD1       3       3              PASSIVE     BM04B-GHS-TBT(LF)(SN)(N)
+
+[00051] SWCLK
+        DEBUG?     5       5              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+
+[00050] STM_USB_DP
+        IC1        34      PA12_[PA10]    PASSIVE     STM32G0B1CEU6
+
+[00049] STM_USB_DM
+        IC1        33      PA11_[PA9]     PASSIVE     STM32G0B1CEU6
+
+[00048] STM_NRST
+        IC1        10      PF2-NRST       PASSIVE     STM32G0B1CEU6
+        R17        1       1              PASSIVE     RC0402FR-074K7L
+
+[00047] SDA
+        IC1        46      PB7            PASSIVE     STM32G0B1CEU6
+        R11        1       1              PASSIVE     RC0402FR-074K7L
+
+[00046] SCL
+        IC1        45      PB6            PASSIVE     STM32G0B1CEU6
+        R12        1       1              PASSIVE     RC0402FR-074K7L
+
+[00045] RX
+        IC1        32      PA10           PASSIVE     STM32G0B1CEU6
+
+[00044] OSC_OUT
+        IC1        9       PF1-OSC_OUT    PASSIVE     STM32G0B1CEU6
+        Y1         1       1              PASSIVE     CSTCE8M00G55-R0
+
+[00043] OSC_IN
+        IC1        8       PF0-OSC_IN     PASSIVE     STM32G0B1CEU6
+        Y1         3       3              PASSIVE     CSTCE8M00G55-R0
+
+[00039] NetLED1_3
+        LED1       3       B              PASSIVE     LTST-C19HE1WT
+        R16        2       2              PASSIVE     RC0402FR-07330RL
+
+[00038] NetLED1_2
+        LED1       2       G              PASSIVE     LTST-C19HE1WT
+        R15        2       2              PASSIVE     RC0402FR-07330RL
+
+[00037] NetLED1_1
+        LED1       1       R              PASSIVE     LTST-C19HE1WT
+        R14        2       2              PASSIVE     RC0402FR-07330RL
+
+[00008] LED_RED
+        IC1        1       PC13           PASSIVE     STM32G0B1CEU6
+        R14        1       1              PASSIVE     RC0402FR-07330RL
+
+[00007] LED_GREEN
+        IC1        2       PC14-OSC32_IN  PASSIVE     STM32G0B1CEU6
+        R15        1       1              PASSIVE     RC0402FR-07330RL
+
+[00006] LED_BLUE
+        IC1        3       PC15-OSC32_OUT PASSIVE     STM32G0B1CEU6
+        R16        1       1              PASSIVE     RC0402FR-07330RL
+
+[00005] GND
+        C1         1       1              PASSIVE     GCM155R71H104KE02D
+        C2         1       1              PASSIVE     GCM155R71H104KE02D
+        C13        1       1              PASSIVE     GCM155R71H104KE02D
+        C14        1       1              PASSIVE     GCM155R71H104KE02D
+        C15        1       1              PASSIVE     GCM155R71H104KE02D
+        C16        1       1              PASSIVE     GCM155R71H104KE02D
+        DEBUG?     6       6              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        DEBUG?     S1      SHIELD         PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        DEBUG?     S2      SHIELD         PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        IC1        7       VSS/VSSA       PASSIVE     STM32G0B1CEU6
+        IC1        49      VSS            PASSIVE     STM32G0B1CEU6
+        Rv2        1       1              PASSIVE     RC0402FR-072K4L
+        SWD1       1       1              PASSIVE     BM04B-GHS-TBT(LF)(SN)(N)
+        U1         2       GND            PASSIVE     SPX3819M5-L-3-3/TR
+        Y1         2       2              POWER       CSTCE8M00G55-R0
+
+[00004] DEBUG_TX
+        DEBUG?     2       2              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        IC1        41      PD3            PASSIVE     STM32G0B1CEU6
+
+[00003] DEBUG_RX
+        DEBUG?     3       3              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        IC1        40      PD2            PASSIVE     STM32G0B1CEU6
+
+[00002] 5V
+        C1         2       2              PASSIVE     GCM155R71H104KE02D
+        U1         1       VIN            POWER       SPX3819M5-L-3-3/TR
+        U1         3       EN             POWER       SPX3819M5-L-3-3/TR
+
+[00001] 3.3
+        C2         2       2              PASSIVE     GCM155R71H104KE02D
+        C13        2       2              PASSIVE     GCM155R71H104KE02D
+        C14        2       2              PASSIVE     GCM155R71H104KE02D
+        C15        2       2              PASSIVE     GCM155R71H104KE02D
+        C16        2       2              PASSIVE     GCM155R71H104KE02D
+        DEBUG?     1       1              PASSIVE     SM06B-SRSS-TB(LF)(SN)
+        IC1        4       VBAT           PASSIVE     STM32G0B1CEU6
+        IC1        5       VREF+          PASSIVE     STM32G0B1CEU6
+        IC1        6       VDD/VDDA       PASSIVE     STM32G0B1CEU6
+        LED1       4       A              PASSIVE     LTST-C19HE1WT
+        R11        2       2              PASSIVE     RC0402FR-074K7L
+        R12        2       2              PASSIVE     RC0402FR-074K7L
+        R17        2       2              PASSIVE     RC0402FR-074K7L
+        Rv1        2       2              PASSIVE     RC0402FR-074K3L
+        SWD1       4       4              PASSIVE     BM04B-GHS-TBT(LF)(SN)(N)
+        U1         5       VOUT           POWER       SPX3819M5-L-3-3/TR
+

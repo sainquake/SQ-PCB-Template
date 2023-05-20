@@ -1,0 +1,33 @@
+Altium Designer Pick and Place Locations
+C:\altium workspace\RCL\SQ-PCB-Template\Project Outputs\Pick Place\Pick Place for PCB.csv
+
+========================================================================================================================
+File Design Information:
+
+Date:       20.05.23
+Time:       23:24
+Revision:   26c26c97b53f1a9551c041e43cab29b22eb1d673
+Variant:    No variations
+Units used: mm
+
+"Designator","Comment","Layer","Footprint","Center-X(mm)","Center-Y(mm)","Rotation","Description"
+"Y1","CSTCE8M00G55-R0","TopLayer","*OSC_CSTCE8M00G55-R0","26.9250","13.7750","90","Ceramic Resonator 8MHz ??0.5% _Tol_ ??0.2% _Stability_ 33pF 40Ohm 3-Pin CSMD T/R"
+"U1","SPX3819M5-L-3-3/TR","TopLayer","*SOT95P280X145-5N","37.8250","10.0000","0","Low Dropout Voltage Regulator, 3.3V 0.5A, В±1%, 2.5 to 16 Vin, 5-Pin SOT-23"
+"SWD1","BM04B-GHS-TBT(LF)(SN)(N)","TopLayer","JST_BM04B-GHS-holes","39.2750","17.0250","90","Conn Shrouded Header HDR 4 POS 1.25mm Solder ST SMD Reel"
+"Rv2","RC0402FR-072K4L","TopLayer","RESC1005X40N","33.6750","10.5750","90","0.062Вт 0402 2.4 кОм, 1%, Чип резистор (SMD)"
+"Rv1","RC0402FR-074K3L","TopLayer","RESC1005X40N","32.7000","10.5500","270","0.062Вт 0402 4.3 кОм, 1%, Чип резистор (SMD)"
+"R17","RC0402FR-074K7L","TopLayer","RESC1005X40N","27.5500","11.0000","180","0.062Вт 0402 4.7 кОм, 1%, Чип резистор (SMD)"
+"R16","RC0402FR-07330RL","TopLayer","RESC1005X40N","29.3250","21.6750","90","0.062Вт 0402 330 Ом, 1%, Чип резистор (SMD)"
+"R15","RC0402FR-07330RL","TopLayer","RESC1005X40N","26.8750","21.7500","90","0.062Вт 0402 330 Ом, 1%, Чип резистор (SMD)"
+"R14","RC0402FR-07330RL","TopLayer","RESC1005X40N","28.0500","21.7250","90","0.062Вт 0402 330 Ом, 1%, Чип резистор (SMD)"
+"R12","RC0402FR-074K7L","TopLayer","RESC1005X40N","31.6750","21.0000","90","0.062Вт 0402 4.7 кОм, 1%, Чип резистор (SMD)"
+"R11","RC0402FR-074K7L","TopLayer","RESC1005X40N","30.6500","21.0750","90","0.062Вт 0402 4.7 кОм, 1%, Чип резистор (SMD)"
+"LED1","LTST-C19HE1WT","TopLayer","LTST-C19HE1WT","28.6750","23.8750","90","Blue/Green/Red"
+"IC1","STM32G0B1CEU6","TopLayer","QFN50P700X700X60-49N-D","33.0000","15.7250","0","Integrated Circuit"
+"DEBUG?","SM06B-SRSS-TB(LF)(SN)","TopLayer","JST_SM06B-SRSS-TB(LF)(SN)","36.4500","23.7875","180","Connector Header Surface Mount, Right Angle 6 position 0.039 _1.00mm_"
+"C16","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","27.6250","16.0250","0","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
+"C15","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","27.6250","18.6750","0","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
+"C14","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","27.6250","17.7750","0","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
+"C13","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","27.6250","16.9000","0","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
+"C2","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","40.7000","10.5250","90","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
+"C1","GCM155R71H104KE02D","TopLayer","CAPC1005X55N","34.9750","10.4250","90","GCM155R71H104KE02D, Чип 0402 X7R 0.1uF +10% 50V,Конденсатор"
