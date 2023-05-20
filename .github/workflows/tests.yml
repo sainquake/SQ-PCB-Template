@@ -1,0 +1,34 @@
+name: tests
+
+on: [push]
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: repo
+
+      - name: Check that all needed files exists (test-files-exists.py)
+        run: |
+          cd repo && python tests/test-files-exists.py
+
+      - name: Generate dict BOMList from BOM file
+        run: |
+          cd repo && pip install openpyxl && python tests/test-generateBOM.py
+
+      - name: Check Version Resistors is correct if exists (test-versions.py)
+        run: |
+          cd repo && python tests/test-versions.py
+
+      - name: Check Manufacturer Partnumber (test-wrong-MP.py)
+        run: |
+          cd repo && python tests/test-wrong-MP.py
+
+      - name: Check that all BOM components contains in 'pick and place' (test-BOM-PNP.py)
+        run: |
+          cd repo && pip install pandas && python tests/test-BOM-PNP.py      
+
+      - name: All other tests that can be added in future
+        run: |
+          cd repo && pip install steputils && python tests/test-other.py
