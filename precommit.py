@@ -31,10 +31,16 @@ for i in data:
             'component': i[-1],
             })
 
+f = open('pinout.md', "w")
+f.write("| net | designator | pinNum | pinName | component |\n")
+f.write("| - | --- | - | - | - |\n")
+
 for item in result:
     if 'STM'.lower() in item['component'].lower():
         print(item['pinName'],item['net'])
+        f.write(f"| {item['net']} | {item['designator']} | {item['pinNum']} | {item['pinName']} | {item['component']} |\n")
 
+f.close()
 
 with open('README.md') as f:
     lines = f.readlines()
@@ -43,11 +49,14 @@ for li in lines:
     if '## MCU PINOUT' in li:
         print(li)
 
-'''
+
 with open("netlist.json", 'w', encoding='utf8') as outfile:
     json.dump(result, outfile, indent=4, ensure_ascii=False)
     outfile.close()
-'''
+
+
+
+
 
 #MAKE TRANPARENT pics
 
@@ -258,9 +267,9 @@ tmp = []
 for i in pcbplate:
     tmp.append(float(i[i.index('C')+1:]))
 
-#PCB.G1
+#PCB.G1 GTL GBL G2 ... G10
 
-with open('./Project Outputs/Gerber/PCB.G1') as f:
+with open('./Project Outputs/Gerber/PCB.GTL') as f:
     lines = f.readlines()
 for i in range(lines.__len__()):
     lines[i] = lines[i].strip('*\n')
