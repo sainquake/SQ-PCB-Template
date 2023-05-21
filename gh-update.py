@@ -29,6 +29,10 @@ local_repo.index.commit(commit_message)
 
 local_repo.git.checkout('gh-pages')
 
+import os
+
+os.remove('README.md')
+
 local_repo.git.checkout('master', 'README.md')
 
 local_repo.git.add('.')
