@@ -1,66 +1,77 @@
 import json
 import os
 
-PROJECT = ''
-for path in os.listdir('./'):
-    #print(path)
-    if '.prjpcb' in path.lower():
-        PROJECT = path
-        break
+def getProjectName():
+    for path in os.listdir('./'):
+        #print(path)
+        if '.prjpcb' in path.lower():
+            _PROJECT = path
+            break
+    print(_PROJECT)
+    return _PROJECT
 
-print(PROJECT)
-prj = open('./'+PROJECT,mode="r",encoding="utf-8")
+PROJECT = getProjectName()
 
-parameters = {}
+def getParametersFromProjPCB(_PROJECT):
+    prj = open('./'+_PROJECT,mode="r",encoding="utf-8")
 
-while prj:
-    line = prj.readline()
-    if '[Parameter' in line:
-        n = prj.readline().split('=')[1].strip()
-        v = prj.readline().split('=')[1].strip()
-        parameters[n] = v
-        print(n,v)
-    if line == '':
-        break
-prj.close()
+    parameters = {}
 
-#version in PRJ
-vp_h = str(parameters['Version'].split('.')[0] )
-vp_m = str(parameters['Version'].split('.')[1] if len(parameters['Version'].split('.'))>1 else 0)
-vp_l = str(parameters['Version'].split('.')[2] if len(parameters['Version'].split('.'))>2 else 0)
-vp = vp_h+'.'+vp_m+'.'+vp_l
-print(f'version from {PROJECT} file is ',vp)
+    while prj:
+        line = prj.readline()
+        if '[Parameter' in line:
+            n = prj.readline().split('=')[1].strip()
+            v = prj.readline().split('=')[1].strip()
+            parameters[n] = v
+            print(n,v)
+        if line == '':
+            break
+    prj.close()
 
+    #version in PRJ
+    vp_h = str(parameters['Version'].split('.')[0] )
+    vp_m = str(parameters['Version'].split('.')[1] if len(parameters['Version'].split('.'))>1 else 0)
+    vp_l = str(parameters['Version'].split('.')[2] if len(parameters['Version'].split('.'))>2 else 0)
+    vp = vp_h+'.'+vp_m+'.'+vp_l
+    parameters['vp'] = vp
+    print(f'version from {_PROJECT} file is ',vp)
+    return parameters
 
+parameters = getParametersFromProjPCB(PROJECT)
+vp = parameters['vp']
 #PARSE netlist
 
-net = os.listdir('./Project Outputs/WireListNetlist/')[0]
+def parseNetlist():
+    net = os.listdir('./Project Outputs/WireListNetlist/')[0]
 
-with open(f'./Project Outputs/WireListNetlist/{net}') as f:
-    lines = f.readlines()
-for i in range(lines.__len__()):
-    lines[i] = lines[i].strip()
-lines = lines[lines.index('<<< Wire List >>>'):]
-while '' in lines:
-    lines.remove('')
+    with open(f'./Project Outputs/WireListNetlist/{net}') as f:
+        lines = f.readlines()
+    for i in range(lines.__len__()):
+        lines[i] = lines[i].strip()
+    lines = lines[lines.index('<<< Wire List >>>'):]
+    while '' in lines:
+        lines.remove('')
 
-keys = ['net','designator','pinNum','pinName','component']
-data = lines[2:]
-for i in range(data.__len__()):
-    data[i] = data[i].split()
-result = []
-net = ''
-for i in data:
-    if i[0][0] == '[':
-        net = i[1]
-    else:
-        result.append({
-            'net':net,
-            'designator': i[0],
-            'pinNum': i[1],
-            'pinName': i[2],
-            'component': i[-1],
-            })
+    keys = ['net','designator','pinNum','pinName','component']
+    data = lines[2:]
+    for i in range(data.__len__()):
+        data[i] = data[i].split()
+    result = []
+    net = ''
+    for i in data:
+        if i[0][0] == '[':
+            net = i[1]
+        else:
+            result.append({
+                'net':net,
+                'designator': i[0],
+                'pinNum': i[1],
+                'pinName': i[2],
+                'component': i[-1],
+                })
+    return result
+
+netlist = parseNetlist()
 
 f = open('pinout.md', "w")
 
@@ -79,28 +90,12 @@ f.write('## MCU PINOUT\n\n')
 f.write("| net        | designator | pinNum | pinName | component |\n")
 f.write("| ---------- | -- | -- | -------------- | -------------- |\n")
 
-for item in result:
+for item in netlist:
     if 'STM'.lower() in item['component'].lower():
         print(item['pinName'],item['net'])
         f.write(f"| {item['net']:10} | {item['designator']:2} | {item['pinNum']:2} | {item['pinName']:14} | {item['component']} |\n")
 
 f.close()
-'''
-with open('README.md') as f:
-    lines = f.readlines()
-
-for li in lines:
-    if '## MCU PINOUT' in li:
-        print(li)
-
-
-with open("netlist.json", 'w', encoding='utf8') as outfile:
-    json.dump(result, outfile, indent=4, ensure_ascii=False)
-    outfile.close()
-
-'''
-
-
 
 #MAKE TRANPARENT pics
 
@@ -125,17 +120,6 @@ alphaAndCut('./doc/view.png','./doc/t-view.png')
 alphaAndCut('./doc/view-bottom.png','./doc/t-view-bottom.png')
 alphaAndCut('./doc/view-top.png','./doc/t-view-top.png')
 
-
-def Cut(input_path,output_path):
-    src = cv2.imread(input_path)
-    tgt = src#remove(src)
-    rows = np.any(tgt<255, axis=1)
-    cols = np.any(tgt<255, axis=0)
-    rmin, rmax = np.where(rows)[0][[0, -1]]
-    cmin, cmax = np.where(cols)[0][[0, -1]]
-    cv2.imwrite(output_path, tgt[rmin-3:rmax+3, cmin-3:cmax+3])
-
-
 # GENERATE PNG OF drw
 
 try:
@@ -150,19 +134,19 @@ except:
     print('something wrong with pdf2image')
 
 
-
-
 #GET MODEL DIMENSIONS
 
-step_file = ''
+# pip install steputils
+from steputils import p21
 
-for path in os.listdir('./doc'):
-    if '.step' in path.lower():
-        step_file = path
-        break
-try:
-    # pip install steputils
-    from steputils import p21
+def getBBoxFromSTEP():
+    step_file = ''
+
+    for path in os.listdir('./doc'):
+        if '.step' in path.lower():
+            step_file = path
+            break
+    
     file = p21.readfile(f'doc/{step_file}')
 
     points = [
@@ -194,160 +178,171 @@ try:
     )
 
     #print(bbox)
-    print(dim)
+    #print(dim)
 
     x = round(dim[0]*10)/10.0
     y = round(dim[1]*10)/10.0
     z = round(dim[2]*10)/10.0
 
     print(x,y,z)
-except:
-    print("An exception occurred 'pip install steputils' not installed")
+    return [x,y,z]
 
-
+stepBBox = getBBoxFromSTEP()
 
 
 # GET GERBER DIMENSIONS
 
 from gerber import load_layer
 
-# Open the gerber files
-gm2 = load_layer('./Project Outputs/Gerber/PCB.GM2')
+def getBBoxFromGerber(file_name='PCB.GM2'):
+    # Open the gerber files
+    gm2 = load_layer(f'./Project Outputs/Gerber/{file_name}')
 
-#print(gm2.__dict__)
-#print(gm2.bounds)
-print(-gm2.bounds[0][0]+gm2.bounds[0][1])
-print(-gm2.bounds[1][0]+gm2.bounds[1][1])
-gerber_x = round((-gm2.bounds[0][0]+gm2.bounds[0][1])*100)/100
-gerber_y = round((-gm2.bounds[1][0]+gm2.bounds[1][1])*100)/100
+    #print(gm2.__dict__)
+    #print(gm2.bounds)
+    print(-gm2.bounds[0][0]+gm2.bounds[0][1])
+    print(-gm2.bounds[1][0]+gm2.bounds[1][1])
+    gerber_x = round((-gm2.bounds[0][0]+gm2.bounds[0][1])*100)/100
+    gerber_y = round((-gm2.bounds[1][0]+gm2.bounds[1][1])*100)/100
+    return [gerber_x,gerber_y]
+
+gerberBBox = getBBoxFromGerber()
 
 # GENERATE BOM file exactly for PCBWay
 
 import openpyxl
 import pandas as pd
 
-with open('./Project Outputs/BOM/BOMtxt-BOM.txt') as f:
-    lines = f.readlines()
-for i in range(lines.__len__()):
-    lines[i] = lines[i].strip()
-for i in range(lines.__len__()):
-    lines[i] = lines[i].split('\t')
-for i in range(len(lines)):
-    for j in range(len(lines[i])):
-        lines[i][j] = lines[i][j].replace('"', '')
-data = pd.DataFrame(lines[1:], columns=lines[0])
-data = data.drop(0)
-columns = ['*Designator', '*Qty', 'Manufacturer', '*Mfg Part #', 'Value / Description', '*Package/Footprint',
-           'Mounting Type', 'Your Instructions / Notes', 'Assembly', '*Unit Price(XX sets)', '*Total', '*Delivery Time',
-           '*Actual Purchase Mfg Part #', '*PCBWay Note', 'Customer Reply', 'PCBWay Update']
-dataxls = pd.DataFrame(columns=columns)
-dataxls['*Designator'] = data['Designator']
-dataxls['*Qty'] = data['Quantity']
-dataxls['Manufacturer'] = data['MF']
-dataxls['*Mfg Part #'] = data['MP']
-dataxls['Value / Description'] = data['Value'].astype('str') + '; ' + data['Description'].astype('str')
-dataxls['*Package/Footprint'] = data['Package']
-dataxls['Mounting Type'] = data['Type']
-dataxls['Your Instructions / Notes'] = data['Instructions'] + '; ' + data['HelpURL']
-dataxls.to_excel('./Project Outputs/BOM/output.xlsx')
+def generatBOMToPCBWay(save_to = './Project Outputs/BOM/output.xlsx'):
+    with open('./Project Outputs/BOM/BOMtxt-BOM.txt') as f:
+        lines = f.readlines()
+    for i in range(lines.__len__()):
+        lines[i] = lines[i].strip()
+    for i in range(lines.__len__()):
+        lines[i] = lines[i].split('\t')
+    for i in range(len(lines)):
+        for j in range(len(lines[i])):
+            lines[i][j] = lines[i][j].replace('"', '')
+    data = pd.DataFrame(lines[1:], columns=lines[0])
+    data = data.drop(0)
+    columns = ['*Designator', '*Qty', 'Manufacturer', '*Mfg Part #', 'Value / Description', '*Package/Footprint',
+            'Mounting Type', 'Your Instructions / Notes', 'Assembly', '*Unit Price(XX sets)', '*Total', '*Delivery Time',
+            '*Actual Purchase Mfg Part #', '*PCBWay Note', 'Customer Reply', 'PCBWay Update']
+    dataxls = pd.DataFrame(columns=columns)
+    dataxls['*Designator'] = data['Designator']
+    dataxls['*Qty'] = data['Quantity']
+    dataxls['Manufacturer'] = data['MF']
+    dataxls['*Mfg Part #'] = data['MP']
+    dataxls['Value / Description'] = data['Value'].astype('str') + '; ' + data['Description'].astype('str')
+    dataxls['*Package/Footprint'] = data['Package']
+    dataxls['Mounting Type'] = data['Type']
+    dataxls['Your Instructions / Notes'] = data['Instructions'] + '; ' + data['HelpURL']
+    dataxls.to_excel('./Project Outputs/BOM/output.xlsx')
 
-book = openpyxl.load_workbook('./Project Outputs/BOM/output.xlsx')
-sheet = book['Sheet1']
-for col in sheet.columns: # автоматическая ширина ячеек
-     max_length = 0
-     column = col[0].column_letter # Get the column name
-     for cell in col:
-         try: # Necessary to avoid error on empty cells
-             if len(str(cell.value)) > max_length:
-                 max_length = len(str(cell.value))
-         except:
-             pass
-     adjusted_width = max_length * 0.8
-     sheet.column_dimensions[column].width = adjusted_width
-yellow = openpyxl.styles.PatternFill('solid', fgColor="FFFF00")
-grey = openpyxl.styles.PatternFill('solid', fgColor="C0C0C0")
-for row in sheet.iter_rows(min_row=1, min_col=1, max_row=1, max_col=sheet.max_column):
-    for cell in row:
-        cell.fill = grey
-sheet['B1'].fill = yellow
-sheet['C1'].fill = yellow
-sheet['E1'].fill = yellow
-sheet['G1'].fill = yellow
-sheet['K1'].fill = yellow
-sheet['L1'].fill = yellow
-sheet['M1'].fill = yellow
-sheet['N1'].fill = yellow
-sheet['O1'].fill = yellow
-sheet['P1'].fill = yellow
-sheet['Q1'].fill = yellow
-book.save('./Project Outputs/BOM/output.xlsx')
+    book = openpyxl.load_workbook('./Project Outputs/BOM/output.xlsx')
+    sheet = book['Sheet1']
+    for col in sheet.columns: # автоматическая ширина ячеек
+        max_length = 0
+        column = col[0].column_letter # Get the column name
+        for cell in col:
+            try: # Necessary to avoid error on empty cells
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        adjusted_width = max_length * 0.8
+        sheet.column_dimensions[column].width = adjusted_width
+    yellow = openpyxl.styles.PatternFill('solid', fgColor="FFFF00")
+    grey = openpyxl.styles.PatternFill('solid', fgColor="C0C0C0")
+    for row in sheet.iter_rows(min_row=1, min_col=1, max_row=1, max_col=sheet.max_column):
+        for cell in row:
+            cell.fill = grey
+    sheet['B1'].fill = yellow
+    sheet['C1'].fill = yellow
+    sheet['E1'].fill = yellow
+    sheet['G1'].fill = yellow
+    sheet['K1'].fill = yellow
+    sheet['L1'].fill = yellow
+    sheet['M1'].fill = yellow
+    sheet['N1'].fill = yellow
+    sheet['O1'].fill = yellow
+    sheet['P1'].fill = yellow
+    sheet['Q1'].fill = yellow
+    book.save(save_to)
 
+generatBOMToPCBWay()
 
 #PCB.xls
 
 # pip install xlrd
-data = pd.read_excel('./Project Outputs/Report Board Stack/PCB.xls')
-# суммарная толщина всех слоёв
-maxvalue = float(list(data[-1:].stack())[0].split()[-1].replace('mm','').replace(',','.')) # Последняя строка из таблицы стакается в одну ячейку, превращается в список, оставшаяся строка делится по пробелам, удаляется mm, запятая меняется на точку, всё это превращается в число float
-data = data[4:-3]
-layers = data.loc[data.iloc[:,-3] == 'Copper'] #Ищу по столбцу где есть медь - это проводящие слои
-listlayers = list(layers.iloc[:,-4]) # Список слоёв
-hight = list(layers.iloc[:,-2]) # Список толщин
-temp = []
-for i in hight:
-    temp.append(float(i.replace('mm','').replace(',','.')))
-hight = temp.copy()
-standrdrow = [0.2, 0.3, 0.4, 0.6, 0.8, 1.0, 1.2, 1.6, 2.0, 2.4, 2.6, 2.8, 3.0, 3.2]
-standrdvalue = [abs(i-maxvalue) for i in standrdrow]
-standrdvalue = standrdrow[standrdvalue.index(min(standrdvalue))]
 
+def layerStackParce():
+    data = pd.read_excel('./Project Outputs/Report Board Stack/PCB.xls')
+    # суммарная толщина всех слоёв
+    maxvalue = float(list(data[-1:].stack())[0].split()[-1].replace('mm','').replace(',','.')) # Последняя строка из таблицы стакается в одну ячейку, превращается в список, оставшаяся строка делится по пробелам, удаляется mm, запятая меняется на точку, всё это превращается в число float
+    data = data[4:-3]
+    layers = data.loc[data.iloc[:,-3] == 'Copper'] #Ищу по столбцу где есть медь - это проводящие слои
+    listlayers = list(layers.iloc[:,-4]) # Список слоёв
+    hight = list(layers.iloc[:,-2]) # Список толщин
+    temp = []
+    for i in hight:
+        temp.append(float(i.replace('mm','').replace(',','.')))
+    hight = temp.copy()
+    standrdrow = [0.2, 0.3, 0.4, 0.6, 0.8, 1.0, 1.2, 1.6, 2.0, 2.4, 2.6, 2.8, 3.0, 3.2]
+    standrdvalue = [abs(i-maxvalue) for i in standrdrow]
+    standrdvalue = standrdrow[standrdvalue.index(min(standrdvalue))]
+
+    re = {}
+    re['height'] = hight
+    re['list'] = listlayers
+    re['stndart height'] = standrdvalue
+    return re
+
+layerStack = layerStackParce()
 #PCB.TXT
 
-with open('./Project Outputs/NC Drill/PCB.TXT') as f:
-    lines = f.readlines()
-for i in range(lines.__len__()):
-    lines[i] = lines[i].strip()
-pcbplate = lines[lines.index(';TYPE=PLATED')+1:lines.index('%')] #TODO в цикл его надо пихать шобы по всему файлу пройтись?
-tmp = []
-for i in pcbplate:
-    tmp.append(float(i[i.index('C')+1:]))
+def minFromNCDrill():
+    with open('./Project Outputs/NC Drill/PCB.TXT') as f:
+        lines = f.readlines()
+    for i in range(lines.__len__()):
+        lines[i] = lines[i].strip()
+    pcbplate = lines[lines.index(';TYPE=PLATED')+1:lines.index('%')] #TODO в цикл его надо пихать шобы по всему файлу пройтись?
+    tmp = []
+    for i in pcbplate:
+        tmp.append(float(i[i.index('C')+1:]))
+    return min(tmp)
 
+mindrill = minFromNCDrill()
 #PCB.G1 GTL GBL G2 ... G10
 
-with open('./Project Outputs/Gerber/PCB.GTL') as f:
-    lines = f.readlines()
-for i in range(lines.__len__()):
-    lines[i] = lines[i].strip('*\n')
-listfromPCBG1 = []
-for i in lines:
-    if i.find('%') == False: #TODO поиск строк по % во всём файле вообще корректен?
-        i = i.strip('*%')
-        if i.find('C') != -1 and i.find(',') != -1:
-            listfromPCBG1.append(float(i[i.find(',')+1:]))
+def minTrace(file_name = 'PCB.GTL'):
+    with open(f'./Project Outputs/Gerber/{file_name}') as f:
+        lines = f.readlines()
+    for i in range(lines.__len__()):
+        lines[i] = lines[i].strip('*\n')
+    listfromPCBG1 = []
+    for i in lines:
+        if i.find('%') == False: #TODO поиск строк по % во всём файле вообще корректен?
+            i = i.strip('*%')
+            if i.find('C') != -1 and i.find(',') != -1:
+                listfromPCBG1.append(float(i[i.find(',')+1:]))
 
-result = [layers.shape[0], # Число слоёв
-          listlayers, # Названия слоёв
-          maxvalue, # Максимальное число
-          standrdvalue, # Число приведённое к стандартному значению
-          hight, # Высота слоёв
-          min(tmp), # Минимальная высота из файла PCB.TXT
-          min(listfromPCBG1) # Минимальная высота из файла PCB.G1
-          ]
-print(result)
+    return min(listfromPCBG1)
 
+minwidth = minTrace()
 
 f = open('pinout.md', "a")
 f.write(f"\n# Order details \n\n")
 
 f.write(f"|       | Width, mm | Length, mm | Height, mm |\n")
 f.write(f"| ----- | --------- | ---------- | ---------- |\n")
-f.write(f"|Outline| {x:9} | {y:10} | {z:10} |\n")
-f.write(f"|PCB    | {gerber_x:9} | {gerber_y:10} | {standrdvalue:10} |\n")
+f.write(f"|Outline| {stepBBox[0]:9} | {stepBBox[1]:10} | {stepBBox[2]:10} |\n")
+f.write(f"|PCB    | {gerberBBox[0]:9} | {gerberBBox[1]:10} | {layerStack['stndart height']:10} |\n")
 f.write('\n')
 
-f.write(f'- Size (single): {gerber_x} x {gerber_y} mm\n')
-f.write(f'- Layers: {len(listlayers)} - {listlayers}\n')
-f.write(f'- Thickness: {standrdvalue}\n')
-f.write(f'- Min Track/Spacing: {round(min(listfromPCBG1)*39.3701)}/{round(min(listfromPCBG1)*39.3701)}mil ({min(listfromPCBG1)} mm)\n')
-f.write(f'- Min Hole Size: {min(tmp)} mm\n')
+f.write(f'- Size (single): {gerberBBox[0]} x {gerberBBox[1]} mm\n')
+f.write(f'- Layers: {len(layerStack["list"])} - {layerStack["list"]}\n')
+f.write(f'- Thickness: {layerStack["stndart height"]}\n')
+f.write(f'- Min Track/Spacing: {round(minwidth*39.3701)}/{round(minwidth*39.3701)}mil ({minwidth} mm)\n')
+f.write(f'- Min Hole Size: {mindrill} mm\n')
 f.close()
