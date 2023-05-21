@@ -43,4 +43,8 @@ local_repo.git.add('.')
 commit_message = 'Update readme from master'
 local_repo.index.commit(commit_message)
 
+# Push changes to the remote repository
+remote = local_repo.remote()
+push_info = remote.push()[0]
+
 local_repo.git.checkout('master')
