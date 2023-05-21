@@ -27,14 +27,12 @@ local_repo.git.add('.')
 commit_message = 'Some changes before switch to boards branch'
 local_repo.index.commit(commit_message)
 
-local_repo.git.checkout('boards')
+local_repo.git.checkout('gh-pages')
 
-f = open('existed-boards.md', "a")
-f.write("Now the file has more content!")
-f.close()
+local_repo.git.checkout('master', 'README.md')
 
 local_repo.git.add('.')
-commit_message = 'Added new feature to other_branch'
+commit_message = 'Update readme from master'
 local_repo.index.commit(commit_message)
 
 local_repo.git.checkout('master')
