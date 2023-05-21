@@ -1,6 +1,37 @@
 import json
 import os
 
+PROJECT = ''
+for path in os.listdir('./'):
+    #print(path)
+    if '.prjpcb' in path.lower():
+        PROJECT = path
+        break
+
+print(PROJECT)
+prj = open('./'+PROJECT,mode="r",encoding="utf-8")
+
+parameters = {}
+
+while prj:
+    line = prj.readline()
+    if '[Parameter' in line:
+        n = prj.readline().split('=')[1].strip()
+        v = prj.readline().split('=')[1].strip()
+        parameters[n] = v
+        print(n,v)
+    if line == '':
+        break
+prj.close()
+
+#version in PRJ
+vp_h = str(parameters['Version'].split('.')[0] )
+vp_m = str(parameters['Version'].split('.')[1] if len(parameters['Version'].split('.'))>1 else 0)
+vp_l = str(parameters['Version'].split('.')[2] if len(parameters['Version'].split('.'))>2 else 0)
+vp = vp_h+'.'+vp_m+'.'+vp_l
+print(f'version from {PROJECT} file is ',vp)
+
+
 #PARSE netlist
 
 net = os.listdir('./Project Outputs/WireListNetlist/')[0]
@@ -32,16 +63,29 @@ for i in data:
             })
 
 f = open('pinout.md', "w")
-f.write("| net | designator | pinNum | pinName | component |\n")
-f.write("| - | --- | - | - | - |\n")
+
+f.write(f"# {PROJECT.split('.')[0]} v{str(vp)}  \n\n")
+f.write('| View | Top | Bottom |\n')
+f.write('| ---- | --- | ------ |\n')
+f.write('| <img src="doc/view.png" alt="drawing" height="300"> | <img src="doc/view-top.png" alt="drawing" height="300"/> | <img src="doc/view-bottom.png" alt="drawing" height="300"/> |\n')
+f.write('\n')
+f.write('## Mechanical Specification\n')
+f.write('\n')
+f.write('<img src="doc/drw.png" alt="drawing" height="400"/>\n')
+f.write('\n')
+
+f.write('## MCU PINOUT\n\n')
+
+f.write("| net        | designator | pinNum | pinName | component |\n")
+f.write("| ---------- | -- | -- | -------------- | -------------- |\n")
 
 for item in result:
     if 'STM'.lower() in item['component'].lower():
         print(item['pinName'],item['net'])
-        f.write(f"| {item['net']} | {item['designator']} | {item['pinNum']} | {item['pinName']} | {item['component']} |\n")
+        f.write(f"| {item['net']:10} | {item['designator']:2} | {item['pinNum']:2} | {item['pinName']:14} | {item['component']} |\n")
 
 f.close()
-
+'''
 with open('README.md') as f:
     lines = f.readlines()
 
@@ -54,7 +98,7 @@ with open("netlist.json", 'w', encoding='utf8') as outfile:
     json.dump(result, outfile, indent=4, ensure_ascii=False)
     outfile.close()
 
-
+'''
 
 
 
@@ -174,7 +218,8 @@ gm2 = load_layer('./Project Outputs/Gerber/PCB.GM2')
 #print(gm2.bounds)
 print(-gm2.bounds[0][0]+gm2.bounds[0][1])
 print(-gm2.bounds[1][0]+gm2.bounds[1][1])
-
+gerber_x = round((-gm2.bounds[0][0]+gm2.bounds[0][1])*100)/100
+gerber_y = round((-gm2.bounds[1][0]+gm2.bounds[1][1])*100)/100
 
 # GENERATE BOM file exactly for PCBWay
 
@@ -289,3 +334,20 @@ result = [layers.shape[0], # Число слоёв
           min(listfromPCBG1) # Минимальная высота из файла PCB.G1
           ]
 print(result)
+
+
+f = open('pinout.md', "a")
+f.write(f"\n# Order details \n\n")
+
+f.write(f"|       | Width, mm | Length, mm | Height, mm |\n")
+f.write(f"| ----- | --------- | ---------- | ---------- |\n")
+f.write(f"|Outline| {x:9} | {y:10} | {z:10} |\n")
+f.write(f"|PCB    | {gerber_x:9} | {gerber_y:10} | {standrdvalue:10} |\n")
+f.write('\n')
+
+f.write(f'- Size (single): {gerber_x} x {gerber_y} mm\n')
+f.write(f'- Layers: {len(listlayers)} - {listlayers}\n')
+f.write(f'- Thickness: {standrdvalue}\n')
+f.write(f'- Min Track/Spacing: {round(min(listfromPCBG1)*39.3701)}/{round(min(listfromPCBG1)*39.3701)}mil ({min(listfromPCBG1)} mm)\n')
+f.write(f'- Min Hole Size: {min(tmp)} mm\n')
+f.close()
