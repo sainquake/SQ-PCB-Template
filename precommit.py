@@ -73,30 +73,6 @@ def parseNetlist():
 
 netlist = parseNetlist()
 
-f = open('pinout.md', "w")
-
-f.write(f"# {PROJECT.split('.')[0]} v{str(vp)}  \n\n")
-f.write('| View | Top | Bottom |\n')
-f.write('| ---- | --- | ------ |\n')
-f.write('| <img src="doc/view.png" alt="drawing" height="300"> | <img src="doc/view-top.png" alt="drawing" height="300"/> | <img src="doc/view-bottom.png" alt="drawing" height="300"/> |\n')
-f.write('\n')
-f.write('## Mechanical Specification\n')
-f.write('\n')
-f.write('<img src="doc/drw.png" alt="drawing" height="400"/>\n')
-f.write('\n')
-
-f.write('## MCU PINOUT\n\n')
-
-f.write("| net        | designator | pinNum | pinName | component |\n")
-f.write("| ---------- | -- | -- | -------------- | -------------- |\n")
-
-for item in netlist:
-    if 'STM'.lower() in item['component'].lower():
-        print(item['pinName'],item['net'])
-        f.write(f"| {item['net']:10} | {item['designator']:2} | {item['pinNum']:2} | {item['pinName']:14} | {item['component']} |\n")
-
-f.close()
-
 #MAKE TRANPARENT pics
 
 
@@ -126,7 +102,7 @@ try:
     # pip install pdf2image
 
     from pdf2image import convert_from_path
-    pages = convert_from_path('./doc/doc.pdf', 300)
+    pages = convert_from_path('./doc/doc.pdf', 500)
     pages[-1].save('./doc/drw.png', 'PNG')
 
     #Cut('./doc/drw.png','./doc/drw.png')
@@ -204,6 +180,7 @@ def getBBoxFromGerber(file_name='PCB.GM2'):
     print(-gm2.bounds[1][0]+gm2.bounds[1][1])
     gerber_x = round((-gm2.bounds[0][0]+gm2.bounds[0][1])*100)/100
     gerber_y = round((-gm2.bounds[1][0]+gm2.bounds[1][1])*100)/100
+    #gm2.close()
     return [gerber_x,gerber_y]
 
 gerberBBox = getBBoxFromGerber()
@@ -237,9 +214,9 @@ def generatBOMToPCBWay(save_to = './Project Outputs/BOM/output.xlsx'):
     dataxls['*Package/Footprint'] = data['Package']
     dataxls['Mounting Type'] = data['Type']
     dataxls['Your Instructions / Notes'] = data['Instructions'] + '; ' + data['HelpURL']
-    dataxls.to_excel('./Project Outputs/BOM/output.xlsx')
+    dataxls.to_excel(save_to)
 
-    book = openpyxl.load_workbook('./Project Outputs/BOM/output.xlsx')
+    book = openpyxl.load_workbook(save_to)
     sheet = book['Sheet1']
     for col in sheet.columns: # автоматическая ширина ячеек
         max_length = 0
@@ -269,9 +246,31 @@ def generatBOMToPCBWay(save_to = './Project Outputs/BOM/output.xlsx'):
     sheet['P1'].fill = yellow
     sheet['Q1'].fill = yellow
     book.save(save_to)
+    return data
 
-generatBOMToPCBWay()
 
+path = "./PCBWay-output"
+isExist = os.path.exists(path)
+if not isExist:
+   os.makedirs(path)
+
+bom = generatBOMToPCBWay('./PCBWay-output/BOM.xlsx')
+
+import shutil
+
+shutil.copyfile('./Project Outputs/NC Drill/PCB.TXT', './PCBWay-output/nc-drill.txt')
+shutil.copyfile('./Project Outputs/Pick Place/Pick Place for PCB.txt', './PCBWay-output/Pick Place.txt')
+# 2nd option
+path = "./PCBWay-output/Gerber"
+isExist = os.path.exists(path)
+if not isExist:
+   os.makedirs(path)
+for path in os.listdir('./Project Outputs/Gerber/'):
+    print(path)
+    shutil.copyfile(f'./Project Outputs/Gerber/{path}', f'./PCBWay-output/Gerber/{path}')
+#shutil.copy('./Project Outputs/Gerber/', './PCBWay-output/Gerber/')  # dst can be a folder; use shutil.copy2() to preserve timestamp
+shutil.copyfile('./Project Outputs/CAMtastic1.Cam', './PCBWay-output/CAMtastic1.Cam')
+shutil.copyfile('./doc/drw.png', './PCBWay-output/drw.png')
 #PCB.xls
 
 # pip install xlrd
@@ -331,18 +330,198 @@ def minTrace(file_name = 'PCB.GTL'):
 
 minwidth = minTrace()
 
-f = open('pinout.md', "a")
-f.write(f"\n# Order details \n\n")
 
-f.write(f"|       | Width, mm | Length, mm | Height, mm |\n")
-f.write(f"| ----- | --------- | ---------- | ---------- |\n")
-f.write(f"|Outline| {stepBBox[0]:9} | {stepBBox[1]:10} | {stepBBox[2]:10} |\n")
-f.write(f"|PCB    | {gerberBBox[0]:9} | {gerberBBox[1]:10} | {layerStack['stndart height']:10} |\n")
+
+f = open('README.md', "w")
+
+f.write(f"# {PROJECT.split('.')[0]} v{str(vp)} hardware \n\n")
+f.write('| View | Top | Bottom |\n')
+f.write('| ---- | --- | ------ |\n')
+f.write('| <img src="doc/view.png" alt="drawing" height="300"> | <img src="doc/view-top.png" alt="drawing" height="300"/> | <img src="doc/view-bottom.png" alt="drawing" height="300"/> |\n')
+f.write('\n')
+f.write('## Features\n\n')
+
+f.write('# Wiring\n\n')
+
+f.write('Schematic features. Schematic can be provided via issue.\n\n')
+
+f.write('**Connectors**\n\n')
+
+f.write(f"The node has connectors which are described in the table below.\n\n")
+
+f.write(f"| N | Connector | Description |\n")
+f.write(f"| - | - | - |\n")
+
+i=1
+con_des = []
+for index, row in bom.iterrows():
+    print(row['System'], row['Designator'])
+    if 'Connector' in row['System']:
+        f.write(f"| {i} | {row['Designator']} |  |\n")
+        con_des.append(row['Designator'])
+        i+=1
+
+f.write('\n[Here](https://docs.raccoonlab.co/guide/wires/) you can find manufacturer part number of connectors it self and its mates.\n\n')
+
+f.write('## Pin configuration and functions\n')
 f.write('\n')
 
-f.write(f'- Size (single): {gerberBBox[0]} x {gerberBBox[1]} mm\n')
-f.write(f'- Layers: {len(layerStack["list"])} - {layerStack["list"]}\n')
-f.write(f'- Thickness: {layerStack["stndart height"]}\n')
-f.write(f'- Min Track/Spacing: {round(minwidth*39.3701)}/{round(minwidth*39.3701)}mil ({minwidth} mm)\n')
-f.write(f'- Min Hole Size: {mindrill} mm\n')
+
+for it in con_des:
+    f.write(f"**{it}** \n\n")
+    f.write(f"| Pin N | Net name |\n")
+    f.write(f"| -     | -        |\n")
+    
+    l=[]
+    for item in netlist:
+        if it.lower() in item['designator'].lower():
+            l.append([item['pinNum'],item['net']])
+    l = sorted(l,key=lambda x: (x[0]))
+    for item in l:
+        f.write(f"| {item[0]:2} | {item[1]:10} |\n")
+    f.write('\n')
+
+f.write('Here you can see all connections of MCU.\n\n')
+
+f.write('<img src="doc/pinout.png" alt="pinout" height="400"/>\n\n')
+
+
+f.write("| MCU PIN         | PIN Numer | NET Name | Description |\n")
+f.write("| ---------- |  -- | --------------  | - |\n")
+
+for item in netlist:
+    if 'STM'.lower() in item['component'].lower():
+        print(item['pinName'],item['net'])
+        f.write(f"| {item['pinName']:14} |  {item['pinNum']:2} | {item['net']:10}  |  |\n")
+
+f.write(f'''
+
+## Specifications
+
+**Mechanical**
+
+Scheme is shown on the picture below. CAN model can be provided via email request or issue on github or downloaded on GrabCAD (opens new window).
+
+<img src="doc/drw.png" alt="drawing" height="400"/>
+
+|       | Width, mm | Length, mm | Height, mm |
+| ----- | --------- | ---------- | ---------- |
+|Outline| {stepBBox[0]:9} | {stepBBox[1]:10} | {stepBBox[2]:10} |
+|PCB    | {gerberBBox[0]:9} | {gerberBBox[1]:10} | {layerStack['stndart height']:10} |
+
+Total weight of device less than 50 g.
+
+### Housing
+
+Information about case presented here.
+
+### Absolute Maximum Ratings
+
+### Recommended operating conditions
+
+### ESD ratings
+
+### MTFF
+
+## Integration
+
+**Recommended mechanical mounting**
+
+**Connection example diagram**
+
+### Power Supply Recommendations
+
+Device is designed to operate from an input voltage supply range between 4.5 V and 5.5 V over CAN2 or CAN3 connector, or 5.5 - 30 V from CAN1. This input supply must be able to withstand the maximum input current and maintain a stable voltage. The resistance of the input supply rail should be low enough that an input current transient does not cause a high enough drop that can cause a false UVLO fault triggering and system reset. The amount of bulk capacitance is not critical, but a 47-uF or 100-uF electrolytic capacitor is a typical choice.
+
+## Revision history
+
+|View |Version| Date| Description|
+|-    |-      |-    |-           |
+
+
+
+## Order details
+
+### PCB Specification Selection
+
+- Board type : Panel by PCBWay
+- Break-away rail: Yes
+- Instructions:
+~~~
+Final size is larger ( {stepBBox[0]} x {stepBBox[1]} mm ) than board it self ( {gerberBBox[0]} x {gerberBBox[1]} mm), 
+take a look at the picure in attachements. 
+Panel should be designed to be able to install PWM1, PWM2 while assembly.
+~~~
+- Route Process: Panel as PCBWay prefer
+- X-out Allowance in Panel:  Accept
+
+- Size (single): {gerberBBox[0]} x {gerberBBox[1]} mm
+- Quantity (single): 200
+- Layers: {len(layerStack["list"])} -   {layerStack["list"]}
+
+- Material: FR-4
+- FR4-TG: TG 150-160
+- Thickness: {layerStack["stndart height"]}
+- Min Track/Spacing: {round(minwidth*39.3701)}/{round(minwidth*39.3701)}mil ({minwidth} mm)
+- Min Hole Size: {mindrill} mm
+- Solder Mask: Black
+- Silkscreen: White
+- Edge connector: No
+- Surface Finish: HASL with lead
+- Yes - Tick means you accept we might change "HASL" to "ENIG" at our discretion without extra charge.
+- Via Process: Tenting vias
+- Finished Copper: 1 oz Cu
+- Other Special request:
+~~~
+Final size is larger ( {stepBBox[0]} x {stepBBox[1]} mm ) than board it self ( {gerberBBox[0]} x {gerberBBox[1]} mm )
+~~~
+
+### Assembly Service
+
+- Turnkey
+- Board type : Panelized PCBs
+-  Assembly Side(s): Both sides
+- Quantity: 200
+- Contains Sensitive components/parts - No; 
+- Do you accept alternatives/substitutes made in China? - Yes
+
+- Number of Unique Parts: 0
+- Number of SMD Parts: 0
+- Number of BGA/QFP Parts: 0
+- Number of Through-Hole Parts: 0
+
+### Additional Options
+
+- Firmware loading: Yes
+- Detailed information of assembly:
+~~~
+Firmware is in attachements.
+Take a look at the picure in attachements should be installed from the side.
+~~~
+
+## Device and Documentation Support
+
+- [User manual]()
+- [Hardware docs](doc/doc.pdf)
+
+## Device Support
+
+- [Firmware sources]()
+- [Firmware binary]()
+
+## TERMS OF USAGE / LICENCE
+
+The material provided in this Github repository is subject to the following conditions. 
+
+Firmware files: All firmwares are free (but not open source). Besides unlimited private use you are also granted the permission to use them for commercial purposes under the condition that (1) you don’t modify the firmware, e.g. remove or change copyright statements, (2) provide it for free, i.e. don’t charge any explicit or implicit fees to your customers, and (3) correctly and clearly cite the origin of the firmware and the project web page in any product documentation or web page. 
+
+Hardware files: All hardware, for which material is provided, is open source hardware, under the terms of the TAPR Open Hardware License as published by the Free Hardware Foundation, see http://www.tapr.org/ohl.html. The TAPR license explicitly permits essentially unlimited commercial use, with only few conditions such as that copyright logos are not removed.
+
+''')
+
+
+
+
+
+
 f.close()
