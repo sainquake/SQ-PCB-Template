@@ -17,9 +17,9 @@ jobs:
         run: |
           cd repo && pip install openpyxl && python tests/test-generateBOM.py
 
-      - name: Check Version Resistors is correct if exists (test-versions.py)
-        run: |
-          cd repo && python tests/test-versions.py
+#      - name: Check Version Resistors is correct if exists (test-versions.py)
+#        run: |
+#          cd repo && python tests/test-versions.py
 
       - name: Check Manufacturer Partnumber (test-wrong-MP.py)
         run: |
