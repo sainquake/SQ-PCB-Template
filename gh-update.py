@@ -32,8 +32,8 @@ local_repo.git.checkout('gh-pages')
 import os
 
 os.remove('README.md')
-
-local_repo.git.checkout('master', 'README.md')
+local_repo.git.checkout('master', 'pinout.md')
+os.rename('pinout.md', 'README.md')
 
 local_repo.git.add('.')
 commit_message = 'Update readme from master'
