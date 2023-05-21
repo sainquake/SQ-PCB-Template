@@ -2,7 +2,8 @@
 
 | View | Top | Bottom |
 | ---- | --- | ------ |
-| <img src="doc/view.png" alt="drawing" height="300"> | <img src="doc/view-top.png" alt="drawing" height="300"/> | <img src="doc/view-bottom.png" alt="drawing" height="300"/> |
+| <img src="doc/view.png" alt="drawing" width="300"> | <img src="doc/view-top.png" alt="drawing" width="300"/> | <img src="doc/view-bottom.png" alt="drawing" width="300"/> |
+| <img src="doc/t-view.png" alt="drawing" width="300"> | <img src="doc/t-view-top.png" alt="drawing" width="300"/> | <img src="doc/t-view-bottom.png" alt="drawing" width="300"/> |
 
 ## Features
 
