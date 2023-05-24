@@ -337,8 +337,8 @@ f = open('README.md', "w")
 f.write(f"# {PROJECT.split('.')[0]} v{str(vp)} hardware \n\n")
 f.write('| View | Top | Bottom |\n')
 f.write('| ---- | --- | ------ |\n')
-f.write('| <img src="doc/view.png" alt="drawing" width="300"> | <img src="doc/view-top.png" alt="drawing" width="300"/> | <img src="doc/view-bottom.png" alt="drawing" width="300"/> |\n')
 f.write('| <img src="doc/t-view.png" alt="drawing" width="300"> | <img src="doc/t-view-top.png" alt="drawing" width="300"/> | <img src="doc/t-view-bottom.png" alt="drawing" width="300"/> |\n')
+f.write('|  | <img src="doc/r-view-top.jpg" alt="drawing" width="300"/> | <img src="doc/r-view-bottom.jpg" alt="drawing" width="300"/> |\n')
 f.write('\n')
 f.write('## Features\n\n')
 
@@ -359,7 +359,7 @@ for index, row in bom.iterrows():
     print(row['System'], row['Designator'])
     if 'Connector' in row['System']:
         f.write(f"| {i} | {row['Designator']} |  |\n")
-        con_des.append(row['Designator'])
+        con_des = con_des+ row['Designator'].replace(' ','').split(',')
         i+=1
 
 f.write('\n[Here](https://docs.raccoonlab.co/guide/wires/) you can find manufacturer part number of connectors it self and its mates.\n\n')
@@ -367,24 +367,49 @@ f.write('\n[Here](https://docs.raccoonlab.co/guide/wires/) you can find manufact
 f.write('## Pin configuration and functions\n')
 f.write('\n')
 
-
+pinnames = []
 for it in con_des:
-    f.write(f"**{it}** \n\n")
-    f.write(f"| Pin N | Net name |\n")
-    f.write(f"| -     | -        |\n")
+    pn = {}
+    pn['name'] = it
+    #f.write(f"**{it}** \n\n")
+    #f.write(f"| Pin N | Net name |\n")
+    #f.write(f"| -     | -        |\n")
     
     l=[]
     for item in netlist:
         if it.lower() in item['designator'].lower():
             l.append([item['pinNum'],item['net']])
     l = sorted(l,key=lambda x: (x[0]))
-    for item in l:
-        f.write(f"| {item[0]:2} | {item[1]:10} |\n")
-    f.write('\n')
+    pn['list'] = l
+    #for item in l:
+    #    f.write(f"| {item[0]:2} | {item[1]:10} |\n")
+    #f.write('\n')
+    pinnames.append( pn )
 
+#pinnames = sorted(pinnames,key=lambda x: (len(x['list'])))
+
+strarr = []
+strarr.append('|')
+strarr.append('|')
+for item in pinnames:
+    strarr[0] += ' Pin N | '+item['name']+' |'
+    strarr[1] += ' ----- | ---------------- |'
+    i=3
+    for it in item['list']:
+        if len(strarr)<i:
+            strarr.append('|')
+        strarr[i-1] += f' {it[0]} | {it[1]} |'
+        i+=1
+    while i<len(strarr):
+        strarr[i-1] += " | |"
+        i+=1
+for item in strarr:
+    f.write(item+'\n')
+
+f.write('\n\n')
 f.write('Here you can see all connections of MCU.\n\n')
 
-f.write('<img src="doc/pinout.png" alt="pinout" height="400"/>\n\n')
+f.write('<img src="doc/pinout.png" alt="pinout"/>\n\n')
 
 
 f.write("| MCU PIN         | PIN Numer | NET Name | Description |\n")
