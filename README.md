@@ -2,12 +2,12 @@
 
 | View | Top | Bottom |
 | ---- | --- | ------ |
-| <img src="doc/view.png" alt="drawing" width="300"> | <img src="doc/view-top.png" alt="drawing" width="300"/> | <img src="doc/view-bottom.png" alt="drawing" width="300"/> |
 | <img src="doc/t-view.png" alt="drawing" width="300"> | <img src="doc/t-view-top.png" alt="drawing" width="300"/> | <img src="doc/t-view-bottom.png" alt="drawing" width="300"/> |
+|  | <img src="doc/r-view-top.jpg" alt="drawing" width="300"/> | <img src="doc/r-view-bottom.jpg" alt="drawing" width="300"/> |
 
 ## Features
 
-# Wiring
+## Wiring
 
 Schematic features. Schematic can be provided via issue.
 
@@ -24,31 +24,21 @@ The node has connectors which are described in the table below.
 
 ## Pin configuration and functions
 
-**DEBUG?** 
+| Pin N | DEBUG? | Pin N | SWD1 |
+| ----- | ---------------- | ----- | ---------------- |
+| 1 | 3.3 | 1 | GND |
+| 2 | DEBUG_TX | 2 | SWLK |
+| 3 | DEBUG_RX | 3 | SWDIO |
+| 4 | SWDIO | 4 | 3.3 |
+| 5 | SWCLK | | |
+| 6 | GND | | |
+| S1 | GND | | |
+| S2 | GND |
 
-| Pin N | Net name |
-| -     | -        |
-| 1  | 3.3        |
-| 2  | DEBUG_TX   |
-| 3  | DEBUG_RX   |
-| 4  | SWDIO      |
-| 5  | SWCLK      |
-| 6  | GND        |
-| S1 | GND        |
-| S2 | GND        |
-
-**SWD1** 
-
-| Pin N | Net name |
-| -     | -        |
-| 1  | GND        |
-| 2  | SWLK       |
-| 3  | SWDIO      |
-| 4  | 3.3        |
 
 Here you can see all connections of MCU.
 
-<img src="doc/pinout.png" alt="pinout" height="400"/>
+<img src="doc/pinout.png" alt="pinout"/>
 
 | MCU PIN         | PIN Numer | NET Name | Description |
 | ---------- |  -- | --------------  | - |
@@ -136,7 +126,7 @@ Panel should be designed to be able to install PWM1, PWM2 while assembly.
 
 - Size (single): 15.97 x 18.85 mm
 - Quantity (single): 200
-- Layers: 4 -   ['L1', 'L2', 'L3', 'L4']
+- Layers: 4 -   ['L1', 'L2', 'L3', 'L4'] check [PCBway layer stack](https://www.pcbway.com/multi-layer-laminated-structure.html)
 
 - Material: FR-4
 - FR4-TG: TG 150-160
@@ -192,7 +182,7 @@ Take a look at the picure in attachements should be installed from the side.
 
 The material provided in this Github repository is subject to the following conditions. 
 
-Firmware files: All firmwares are free (but not open source). Besides unlimited private use you are also granted the permission to use them for commercial purposes under the condition that (1) you don’t modify the firmware, e.g. remove or change copyright statements, (2) provide it for free, i.e. don’t charge any explicit or implicit fees to your customers, and (3) correctly and clearly cite the origin of the firmware and the project web page in any product documentation or web page. 
+Firmware files: All firmwares are free (but not open source). Besides unlimited private use you are also granted the permission to use them for commercial purposes under the condition that (1) you dont modify the firmware, e.g. remove or change copyright statements, (2) provide it for free, i.e. dont charge any explicit or implicit fees to your customers, and (3) correctly and clearly cite the origin of the firmware and the project web page in any product documentation or web page. 
 
 Hardware files: All hardware, for which material is provided, is open source hardware, under the terms of the TAPR Open Hardware License as published by the Free Hardware Foundation, see http://www.tapr.org/ohl.html. The TAPR license explicitly permits essentially unlimited commercial use, with only few conditions such as that copyright logos are not removed.
 
