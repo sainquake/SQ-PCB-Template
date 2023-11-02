@@ -258,7 +258,6 @@ bom = generatBOMToPCBWay('./PCBWay-output/BOM.xlsx')
 
 import shutil
 
-shutil.copyfile('./Project Outputs/NC Drill/PCB.TXT', './PCBWay-output/nc-drill.txt')
 shutil.copyfile('./Project Outputs/Pick Place/Pick Place for PCB.txt', './PCBWay-output/Pick Place.txt')
 # 2nd option
 path = "./PCBWay-output/Gerber"
@@ -300,18 +299,27 @@ def layerStackParce():
 layerStack = layerStackParce()
 #PCB.TXT
 
-def minFromNCDrill():
-    with open('./Project Outputs/NC Drill/PCB.TXT') as f:
+def minFromNCDrill(file_name = './Project Outputs/NC Drill/PCB.TXT'):
+    with open(file_name) as f:
         lines = f.readlines()
     for i in range(lines.__len__()):
         lines[i] = lines[i].strip()
     pcbplate = lines[lines.index(';TYPE=PLATED')+1:lines.index('%')] #TODO в цикл его надо пихать шобы по всему файлу пройтись?
     tmp = []
     for i in pcbplate:
-        tmp.append(float(i[i.index('C')+1:]))
+        if 'F00S00C' in i:
+            tmp.append(float(i[i.index('C')+1:]))
     return min(tmp)
 
-mindrill = minFromNCDrill()
+drill_files = []
+for path in os.listdir('./Project Outputs/NC Drill/'):
+    if '.TXT'.lower() in path.lower():
+        drill_files.append('./Project Outputs/NC Drill/'+path)
+        shutil.copyfile('./Project Outputs/NC Drill/'+path, './PCBWay-output/'+path)
+
+mindrill = 50
+for item in drill_files:
+    mindrill = min( minFromNCDrill(item),mindrill)
 #PCB.G1 GTL GBL G2 ... G10
 
 def minTrace(file_name = 'PCB.GTL'):
@@ -342,7 +350,7 @@ f.write('|  | <img src="doc/r-view-top.jpg" alt="drawing" width="300"/> | <img s
 f.write('\n')
 f.write('## Features\n\n')
 
-f.write('# Wiring\n\n')
+f.write('## Wiring\n\n')
 
 f.write('Schematic features. Schematic can be provided via issue.\n\n')
 
@@ -483,7 +491,7 @@ Panel should be designed to be able to install PWM1, PWM2 while assembly.
 
 - Size (single): {gerberBBox[0]} x {gerberBBox[1]} mm
 - Quantity (single): 200
-- Layers: {len(layerStack["list"])} -   {layerStack["list"]}
+- Layers: {len(layerStack["list"])} -   {layerStack["list"]} check [PCBway layer stack](https://www.pcbway.com/multi-layer-laminated-structure.html)
 
 - Material: FR-4
 - FR4-TG: TG 150-160
